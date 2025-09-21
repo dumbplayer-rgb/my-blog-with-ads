@@ -4,21 +4,26 @@ import Link from "next/link";
 
 export default function Home() {
   const postsDir = path.join(process.cwd(), "posts");
-  const files = fs.readdirSync(postsDir);
+  const folders = fs
+    .readdirSync(postsDir, { withFileTypes: true })
+    .filter((f) => f.isDirectory())
+    .map((f) => f.name);
 
-  const posts = files.map((file) => {
-    const slug = file.replace(".html", "");
-    return { slug, title: slug.replace(/-/g, " ") };
-  });
+  const posts = folders.map((folder) => ({
+    slug: folder,
+    title: folder.replace(/-/g, " "),
+  }));
 
   return (
     <main>
-      <h1 className="text-3xl font-bold mb-6">Latest Posts</h1>
-      <div className="space-y-4">
+      <h1 className="text-3xl font-bold mb-8">Latest Posts</h1>
+      <div className="grid md:grid-cols-2 gap-6">
         {posts.map((post) => (
           <Link key={post.slug} href={`/blog/${post.slug}`}>
-            <div className="p-4 bg-white rounded-xl shadow hover:shadow-lg transition">
-              <h2 className="text-xl font-semibold capitalize">{post.title}</h2>
+            <div className="p-6 bg-white rounded-xl shadow hover:shadow-lg transition hover:-translate-y-1">
+              <h2 className="text-xl font-semibold mb-2 capitalize">
+                {post.title}
+              </h2>
             </div>
           </Link>
         ))}

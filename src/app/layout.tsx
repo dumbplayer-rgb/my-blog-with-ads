@@ -1,52 +1,19 @@
 import "./globals.css";
-import { Metadata } from "next";
+import { ReactNode } from "react";
 
-export const metadata: Metadata = {
-  title: "My Blog",
-  description: "A clean Next.js blog with AdSense",
-};
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
-      <head>
-        {/* Google AdSense */}
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=YOUR-ADSENSE-CLIENT-ID"
-          crossOrigin="anonymous"
-        />
-      </head>
-      <body className="bg-gray-50 text-gray-900">
-        <div className="max-w-4xl mx-auto px-4">
-          <header className="py-6 text-center font-bold text-2xl">
-            My Blog
-          </header>
-          {children}
-          <footer className="mt-10 text-center text-sm text-gray-500">
-            © {new Date().getFullYear()} My Blog
-            <div className="mt-4">
-              {/* Footer Ad */}
-              <ins
-                className="adsbygoogle"
-                style={{ display: "block" }}
-                data-ad-client="YOUR-ADSENSE-CLIENT-ID"
-                data-ad-slot="1234567890"
-                data-ad-format="auto"
-                data-full-width-responsive="true"
-              ></ins>
-              <script
-                dangerouslySetInnerHTML={{
-                  __html: "(adsbygoogle = window.adsbygoogle || []).push({});",
-                }}
-              />
-            </div>
-          </footer>
-        </div>
+    <html lang="en" suppressHydrationWarning>
+      <body className="bg-gray-50 text-gray-900 font-sans leading-relaxed">
+        <header className="bg-white shadow py-6 mb-8">
+          <div className="max-w-4xl mx-auto px-4 flex justify-between items-center">
+            <h1 className="text-3xl font-bold text-blue-600">My Blog</h1>
+          </div>
+        </header>
+        <main className="max-w-4xl mx-auto px-4">{children}</main>
+        <footer className="mt-16 py-6 text-center text-gray-500 text-sm">
+          © {new Date().getFullYear()} My Blog. All rights reserved.
+        </footer>
       </body>
     </html>
   );
