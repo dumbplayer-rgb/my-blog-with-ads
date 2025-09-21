@@ -2,18 +2,39 @@ import fs from "fs";
 import path from "path";
 import { notFound } from "next/navigation";
 
-export default function BlogPost({ params }: { params: { slug: string } }) {
-  const postDir = path.join(process.cwd(), "posts", params.slug);
-  const filePath = path.join(postDir, `${params.slug}.html`);
+// Required for static export to know all blog slugs
+export async function generateStaticParams() {
+  const postsDir = path.join(process.cwd(), "posts");
+  const folders = fs
+    .readdirSync(postsDir, { withFileTypes: true })
+    .filter((f) => f.isDirectory())
+    .map((f) => f.name);
 
-  if (!fs.existsSync(filePath)) notFound();
+  return folders.map((slug) => ({ slug }));
+}
+
+// Async page component
+export default async function BlogPost({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  // ✅ Destructure inside async function
+  const slug = await Promise.resolve(params.slug);
+
+  const postDir = path.join(process.cwd(), "posts", slug);
+  const filePath = path.join(postDir, `${slug}.html`);
+
+  if (!fs.existsSync(filePath)) {
+    notFound();
+  }
 
   let fileContent = fs.readFileSync(filePath, "utf-8");
 
-  // Rewrite image paths to point to this post's images folder
+  // Rewrite image paths
   fileContent = fileContent.replace(
     /src="images\/(.*?)"/g,
-    `/posts/${params.slug}/images/$1`,
+    `/posts/${slug}/images/$1`,
   );
 
   return (
