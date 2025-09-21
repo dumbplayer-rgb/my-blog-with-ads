@@ -2,11 +2,11 @@ import fs from "fs";
 import path from "path";
 import { notFound } from "next/navigation";
 
-interface Params {
+export interface Params {
   slug: string;
 }
 
-// Static export: provide all slugs
+// Required for static export
 export async function generateStaticParams(): Promise<Params[]> {
   const postsDir = path.join(process.cwd(), "posts");
   const folders = fs
@@ -18,8 +18,11 @@ export async function generateStaticParams(): Promise<Params[]> {
 }
 
 // Async page component
-export default async function BlogPost({ params }: { params: Params }) {
-  const slug = params.slug;
+export default async function BlogPost({
+  params,
+}: Promise<{ params: Params }>) {
+  // ✅ Wrap props in Promise<>
+  const slug = (await params).slug;
 
   const postDir = path.join(process.cwd(), "posts", slug);
   const filePath = path.join(postDir, `${slug}.html`);
@@ -28,7 +31,7 @@ export default async function BlogPost({ params }: { params: Params }) {
 
   let fileContent = fs.readFileSync(filePath, "utf-8");
 
-  // Rewrite image paths
+  // Rewrite image paths for images folder
   fileContent = fileContent.replace(
     /src="images\/(.*?)"/g,
     `/posts/${slug}/images/$1`,
