@@ -2,8 +2,12 @@ import fs from "fs";
 import path from "path";
 import { notFound } from "next/navigation";
 
-// Required for static export to know all blog slugs
-export async function generateStaticParams() {
+interface Params {
+  slug: string;
+}
+
+// Static export: provide all slugs
+export async function generateStaticParams(): Promise<Params[]> {
   const postsDir = path.join(process.cwd(), "posts");
   const folders = fs
     .readdirSync(postsDir, { withFileTypes: true })
@@ -14,20 +18,13 @@ export async function generateStaticParams() {
 }
 
 // Async page component
-export default async function BlogPost({
-  params,
-}: {
-  params: { slug: string };
-}) {
-  // ✅ Destructure inside async function
-  const slug = await Promise.resolve(params.slug);
+export default async function BlogPost({ params }: { params: Params }) {
+  const slug = params.slug;
 
   const postDir = path.join(process.cwd(), "posts", slug);
   const filePath = path.join(postDir, `${slug}.html`);
 
-  if (!fs.existsSync(filePath)) {
-    notFound();
-  }
+  if (!fs.existsSync(filePath)) notFound();
 
   let fileContent = fs.readFileSync(filePath, "utf-8");
 
@@ -38,7 +35,7 @@ export default async function BlogPost({
   );
 
   return (
-    <article className="prose prose-lg mx-auto">
+    <article className="prose prose-lg mx-auto p-6">
       <div dangerouslySetInnerHTML={{ __html: fileContent }} />
     </article>
   );
